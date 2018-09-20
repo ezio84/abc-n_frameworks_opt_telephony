@@ -2043,7 +2043,11 @@ public class GsmCdmaPhone extends Phone {
             // Complete pending USSD
 
             if (isUssdRelease) {
-                found.onUssdRelease();
+                if (SystemProperties.getBoolean("ro.telephony.needsMuteByRil", false)) {
+                    found.onUssdFinished(ussdMessage, isUssdRequest);
+                } else {
+                    found.onUssdRelease();
+                }
             } else if (isUssdError) {
                 found.onUssdFinishedError();
             } else {
