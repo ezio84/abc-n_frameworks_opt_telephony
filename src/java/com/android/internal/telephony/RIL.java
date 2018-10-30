@@ -178,6 +178,8 @@ public class RIL extends BaseCommands implements CommandsInterface {
     volatile int mWlSequenceNum = 0;
     volatile int mAckWlSequenceNum = 0;
 
+    private static boolean sIsHuaweiRil; 
+
     SparseArray<RILRequest> mRequestList = new SparseArray<RILRequest>();
     static SparseArray<TelephonyHistogram> mRilTimeHistograms = new
             SparseArray<TelephonyHistogram>();
@@ -486,8 +488,10 @@ public class RIL extends BaseCommands implements CommandsInterface {
 
         sRil = this;
 
+        sIsHuaweiRil = android.os.SystemProperties.getBoolean("ro.telephony.isHisiRIL", false);
+
         // Create custom signal strength thresholds based on Huawei's
-        if (sSignalCust == null) {
+        if (sIsHuaweiRil && sSignalCust == null) {
             final int THRESHOLDS = 4;
             final int STEPS = THRESHOLDS - 1;
             sSignalCust = new int[3][THRESHOLDS];
@@ -5709,9 +5713,8 @@ public class RIL extends BaseCommands implements CommandsInterface {
     @VisibleForTesting
     public static SignalStrength convertHalSignalStrength(
             android.hardware.radio.V1_0.SignalStrength signalStrength, int phoneId) {
-	Boolean prop = android.os.SystemProperties.getBoolean("ro.telephony.isHisiRIL", false);
 
-        if (prop && phoneId >= 0) {
+        if (sIsHuaweiRil && phoneId >= 0) {
             return convertHalSignalStrengthHuawei(signalStrength, phoneId);
         }
 
